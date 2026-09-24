@@ -1,0 +1,12 @@
+{
+  "name": "shakarambham-subscription-gate",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": { "start": "node server.js" },
+  "dependencies": {
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "googleapis": "^160.0.0",
+    "dotenv": "^16.4.7"
+  }
+}
