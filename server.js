@@ -1,5 +1,5 @@
 const express = require('express');
-const session = require('express-session');
+const cookieSession = require('cookie-session');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -27,9 +27,7 @@ const PRIVATE_DIR = path.join(__dirname, 'private-pdfs');
 if (process.env.NODE_ENV === 'production') {
   const required = ['SESSION_SECRET', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_REDIRECT_URI'];
   const missing = required.filter((name) => !process.env[name]);
-  if (missing.length) {
-    throw new Error(`Missing production environment variables: ${missing.join(', ')}`);
-  }
+  if (missing.length) throw new Error(`Missing production environment variables: ${missing.join(', ')}`);
 }
 
 app.use((req, res, next) => {
@@ -41,16 +39,14 @@ app.use((req, res, next) => {
 
 app.use(express.json({ limit: '100kb' }));
 
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'LOCAL_ONLY_CHANGE_THIS_SECRET',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 60 * 60 * 1000
-  }
+// Signed client-side session: avoids Express MemoryStore and works correctly on Render.
+app.use(cookieSession({
+  name: 'shakarambham_session',
+  keys: [process.env.SESSION_SECRET || 'LOCAL_ONLY_CHANGE_THIS_SECRET'],
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: process.env.NODE_ENV === 'production',
+  maxAge: 60 * 60 * 1000
 }));
 
 function oauthClient() {
@@ -90,22 +86,20 @@ app.get('/health', (req, res) => {
 app.get('/auth/youtube', async (req, res) => {
   try {
     if (req.query.error) {
-      return res.redirect('/subscribe.html?lang=' +
-        encodeURIComponent(req.session.downloadLang || 'te') + '&verified=0');
+      return res.redirect('/subscribe.html?lang=' + encodeURIComponent(req.session?.downloadLang || 'te') + '&verified=0');
     }
 
     if (req.query.code) {
-      const expectedState = req.session.oauthState;
+      const expectedState = req.session?.oauthState;
       const receivedState = String(req.query.state || '');
       delete req.session.oauthState;
 
-      if (!expectedState || !receivedState ||
-          expectedState.length !== receivedState.length ||
+      if (!expectedState || !receivedState || expectedState.length !== receivedState.length ||
           !crypto.timingSafeEqual(Buffer.from(expectedState), Buffer.from(receivedState))) {
         return res.status(400).send('Invalid OAuth state. Please start verification again.');
       }
 
-      const lang = safeLang(req.session.downloadLang);
+      const lang = safeLang(req.session?.downloadLang);
       if (!lang) return res.status(400).send('Invalid verification request.');
 
       const client = oauthClient();
@@ -163,7 +157,7 @@ app.get('/auth/youtube', async (req, res) => {
 app.get('/download/:lang', (req, res) => {
   const lang = safeLang(req.params.lang);
   if (!lang) return res.status(400).send('Invalid language.');
-  if (req.session.verifiedLang !== lang) return res.status(403).send('Please complete YouTube subscription verification first.');
+  if (req.session?.verifiedLang !== lang) return res.status(403).send('Please complete YouTube subscription verification first.');
 
   const fileName = LANG_FILES[lang];
   const filePath = path.join(PRIVATE_DIR, fileName);
