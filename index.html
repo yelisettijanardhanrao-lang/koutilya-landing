@@ -1,40 +1,119 @@
 <!doctype html>
 <html lang="te">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>శకారంభం — Digital Book</title>
-<link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>శకారంభం — Digital Book</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div id="viewport"><div id="page">
-<header class="top-art"><img src="assets/top-bar.jpg" alt="Shakarambham"></header>
-<nav class="nav-strip"><div class="nav-content"><div class="nav-links">
-<a class="active" href="index.html">⌂ Home</a><a href="about.html">About Book</a><a href="contact.html">Contact</a>
-</div></div></nav>
-<main>
-<section class="hero-art"><img src="assets/banner.jpg" alt="Shakarambham"></section>
-<section class="features features-two">
-<article class="card"><div class="icon red">▤</div><div class="card-copy">
-<h2>Read the Book Online</h2><p>Browse all 127 pages with a smooth and easy reading experience.</p>
-<a class="btn red-btn" href="read.html">Read Book →</a>
-</div></article>
-<article class="card download-card"><div class="icon yellow">⇩</div><div class="card-copy">
-<h2>Download PDF</h2><p>Download the Shakarambham book after YouTube subscription verification.</p>
-<div class="download-controls">
-<select id="downloadLanguage" aria-label="Select download language">
-<option value="">Select Language</option>
-<option value="te">తెలుగు — Telugu</option>
-<option value="en">English</option>
-<option value="hi" disabled>हिन्दी — Coming Soon</option>
-<option value="ta" disabled>தமிழ் — Coming Soon</option>
-<option value="kn" disabled>ಕನ್ನಡ — Coming Soon</option>
-</select>
-<button class="btn yellow-btn" id="downloadBtn" type="button">⇩ Download PDF</button>
-</div></div></article>
-</section>
-<section class="stats-art"><img src="assets/bottom-bar.jpg" alt="Shakarambham statistics"></section>
-</main></div></div>
-<script src="app.js"></script>
+  <div class="page">
+    <header class="top-fixed">
+      <img src="assets/top-bar.jpg" alt="Shakarambham top banner">
+    </header>
+
+    <nav class="nav-fixed">
+      <a class="active" href="index.html">⌂ Home</a>
+      <a href="author.html">Author</a>
+    
+    </nav>
+
+    <main class="content">
+      <section class="hero">
+        <img src="assets/banner.jpg" alt="Shakarambham">
+      </section>
+
+      <section class="actions">
+        <article class="card">
+          <div class="icon red">▤</div>
+          <div>
+            <h2>Read the Book Online</h2>
+            <p>Browse all 127 pages with a smooth and easy reading experience.</p>
+            <a class="btn red-btn" href="read.html">Read Book →</a>
+          </div>
+        </article>
+
+        <article class="card">
+  <div class="icon yellow">⇩</div>
+
+  <div class="download">
+    <h2>Download PDF</h2>
+
+    <p>
+      Download the Shakarambham book in your preferred language.
+    </p>
+
+    <div class="controls">
+
+      <select id="downloadLanguage">
+        <option value="">Select Language</option>
+
+        <option value="te">
+          తెలుగు — Telugu
+        </option>
+
+        <option value="en">
+          English
+        </option>
+
+        <option value="hi">
+          हिन्दी — Hindi
+        </option>
+
+        <option value="ta">
+          தமிழ் — Tamil
+        </option>
+
+        <option value="kn">
+          ಕನ್ನಡ — Kannada
+        </option>
+      </select>
+
+      <button
+        class="btn yellow-btn"
+        id="downloadBtn"
+        type="button">
+        ⇩ Download PDF
+      </button>
+
+    </div>
+  </div>
+</article>
+      </section>
+    </main>
+
+    <footer class="bottom-fixed">
+      <img src="assets/bottom-bar.jpg" alt="Shakarambham bottom banner">
+    </footer>
+  </div>
+  <script src="app.js"></script>
+
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const languageSelect = document.getElementById("downloadLanguage");
+  const downloadBtn = document.getElementById("downloadBtn");
+  const message = document.getElementById("downloadMessage");
+
+  downloadBtn.addEventListener("click", function () {
+
+    const lang = languageSelect.value;
+
+    if (!lang) {
+      message.textContent = "Please select a language first.";
+      message.style.color = "#ed1c24";
+      return;
+    }
+
+    message.textContent = "Please complete YouTube verification...";
+    message.style.color = "#071b42";
+
+    // Send selected language to the server
+    window.location.href =
+      "/auth/youtube?lang=" + encodeURIComponent(lang);
+  });
+
+});
+</script>
 </body>
 </html>
