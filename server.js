@@ -1,4 +1,3 @@
-// Production subscription-gated server for Shakarambham downloads.
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
@@ -8,8 +7,10 @@ const { google } = require('googleapis');
 require('dotenv').config();
 
 const app = express();
+app.disable('x-powered-by');
 app.set('trust proxy', 1);
-const PORT = process.env.PORT || 5500;
+
+const PORT = Number(process.env.PORT || 5500);
 const CHANNEL_ID = 'UCT6nDBzL6iwljJscE3iEYlg';
 const YOUTUBE_SCOPE = 'https://www.googleapis.com/auth/youtube.readonly';
 
@@ -23,21 +24,36 @@ const LANG_FILES = {
 
 const PRIVATE_DIR = path.join(__dirname, 'private-pdfs');
 
+if (process.env.NODE_ENV === 'production') {
+  const required = ['SESSION_SECRET', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_REDIRECT_URI'];
+  const missing = required.filter((name) => !process.env[name]);
+  if (missing.length) {
+    throw new Error(`Missing production environment variables: ${missing.join(', ')}`);
+  }
+}
+
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  next();
+});
+
+app.use(express.json({ limit: '100kb' }));
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'CHANGE_THIS_SESSION_SECRET',
+  secret: process.env.SESSION_SECRET || 'LOCAL_ONLY_CHANGE_THIS_SECRET',
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' }
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 1000
+  }
 }));
 
-// Protected PDFs must never be served by express.static.
-app.use('/private-pdfs', (req, res) => res.status(404).end());
-app.use(express.static(__dirname, { index: 'index.html' }));
-
 function oauthClient() {
-  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
-    throw new Error('GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are required');
-  }
   return new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
@@ -45,23 +61,55 @@ function oauthClient() {
   );
 }
 
-app.get('/health', (req, res) => res.json({ ok: true, service: 'shakarambham-subscription-gate' }));
+function safeLang(value) {
+  const lang = String(value || '').toLowerCase();
+  return LANG_FILES[lang] ? lang : null;
+}
+
+const PUBLIC_FILES = [
+  'index.html', 'about.html', 'author.html', 'contact.html',
+  'read.html', 'subscribe.html', 'styles.css', 'app.js', 'read.js'
+];
+
+for (const file of PUBLIC_FILES) {
+  app.get(`/${file}`, (req, res) => res.sendFile(path.join(__dirname, file)));
+}
+
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+
+app.use('/assets', express.static(path.join(__dirname, 'assets'), {
+  index: false,
+  dotfiles: 'deny',
+  maxAge: '7d'
+}));
+
+app.get('/health', (req, res) => {
+  res.json({ ok: true, service: 'shakarambham-subscription-gate' });
+});
 
 app.get('/auth/youtube', async (req, res) => {
   try {
-    if (req.query.code) {
-      const code = String(req.query.code);
-      const lang = req.session.downloadLang;
-      if (!lang || !LANG_FILES[lang]) return res.status(400).send('Invalid verification request.');
+    if (req.query.error) {
+      return res.redirect('/subscribe.html?lang=' +
+        encodeURIComponent(req.session.downloadLang || 'te') + '&verified=0');
+    }
 
-      const returnedState = String(req.query.state || '');
-      if (!returnedState || returnedState !== req.session.oauthState) {
-        return res.status(400).send('Invalid OAuth state. Please start verification again.');
-      }
+    if (req.query.code) {
+      const expectedState = req.session.oauthState;
+      const receivedState = String(req.query.state || '');
       delete req.session.oauthState;
 
+      if (!expectedState || !receivedState ||
+          expectedState.length !== receivedState.length ||
+          !crypto.timingSafeEqual(Buffer.from(expectedState), Buffer.from(receivedState))) {
+        return res.status(400).send('Invalid OAuth state. Please start verification again.');
+      }
+
+      const lang = safeLang(req.session.downloadLang);
+      if (!lang) return res.status(400).send('Invalid verification request.');
+
       const client = oauthClient();
-      const { tokens } = await client.getToken(code);
+      const { tokens } = await client.getToken(String(req.query.code));
       client.setCredentials(tokens);
 
       const youtube = google.youtube({ version: 'v3', auth: client });
@@ -82,12 +130,13 @@ app.get('/auth/youtube', async (req, res) => {
       return res.redirect('/subscribe.html?lang=' + encodeURIComponent(lang) + '&verified=1');
     }
 
-    const lang = String(req.query.lang || '');
-    if (!LANG_FILES[lang]) return res.status(400).send('Invalid language.');
+    const lang = safeLang(req.query.lang);
+    if (!lang) return res.status(400).send('Invalid language.');
 
     const client = oauthClient();
     req.session.downloadLang = lang;
     req.session.oauthState = crypto.randomBytes(24).toString('hex');
+
     const url = client.generateAuthUrl({
       access_type: 'offline',
       prompt: 'consent',
@@ -95,6 +144,7 @@ app.get('/auth/youtube', async (req, res) => {
       state: req.session.oauthState,
       scope: [YOUTUBE_SCOPE]
     });
+
     return res.redirect(url);
   } catch (err) {
     console.error('YouTube OAuth error:', {
@@ -111,11 +161,11 @@ app.get('/auth/youtube', async (req, res) => {
 });
 
 app.get('/download/:lang', (req, res) => {
-  const lang = req.params.lang;
-  const fileName = LANG_FILES[lang];
-  if (!fileName) return res.status(400).send('Invalid language.');
+  const lang = safeLang(req.params.lang);
+  if (!lang) return res.status(400).send('Invalid language.');
   if (req.session.verifiedLang !== lang) return res.status(403).send('Please complete YouTube subscription verification first.');
 
+  const fileName = LANG_FILES[lang];
   const filePath = path.join(PRIVATE_DIR, fileName);
   if (!fs.existsSync(filePath)) return res.status(404).send(`The ${lang} language PDF is not installed on the server yet.`);
 
@@ -125,13 +175,13 @@ app.get('/download/:lang', (req, res) => {
 });
 
 app.get('/read-pdf/:lang', (req, res) => {
-  const fileName = LANG_FILES[req.params.lang];
-  if (!fileName) return res.status(400).send('Invalid language.');
-  const filePath = path.join(PRIVATE_DIR, fileName);
+  const lang = safeLang(req.params.lang);
+  if (!lang) return res.status(400).send('Invalid language.');
+  const filePath = path.join(PRIVATE_DIR, LANG_FILES[lang]);
   if (!fs.existsSync(filePath)) return res.status(404).send('PDF not installed.');
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', 'inline');
-  fs.createReadStream(filePath).pipe(res);
+  return fs.createReadStream(filePath).pipe(res);
 });
 
 app.listen(PORT, '0.0.0.0', () => console.log(`Shakarambham server running on port ${PORT}`));
