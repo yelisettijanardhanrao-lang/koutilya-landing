@@ -1,1 +1,459 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Subscribe to Download</title><style>body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8;color:#071b42;min-height:100vh;display:flex;align-items:center;justify-content:center}.box{width:min(620px,90vw);background:#fff;border:1px solid #d9dfe8;border-radius:14px;padding:34px;text-align:center;box-shadow:0 10px 35px rgba(10,30,60,.10)}h1{margin:0 0 12px}.btn{display:inline-block;border:0;border-radius:7px;padding:13px 20px;font-weight:700;text-decoration:none;cursor:pointer;margin:7px;font-size:15px}.youtube{background:#ed1c24;color:#fff}.download{background:#ffc900;color:#111}.home{background:#071b42;color:#fff}.note{color:#536a88;font-size:14px;line-height:1.5}.success{color:#16803a;font-weight:700}.error{color:#c62828;font-weight:700}.hidden{display:none}</style></head><body><div class="box"><h1 id="title">Subscribe to Raise Your Voice</h1><p id="message">Please subscribe to the channel. When you return to this page, subscription verification will start automatically.</p><div id="normalActions"><button class="btn youtube" id="openYoutube" type="button">Open YouTube Channel</button></div><div id="checkingActions" class="hidden"><p class="note">Checking your YouTube subscription…</p><p class="note">Please wait. The download button will appear if the subscription is verified.</p></div><div id="successActions" class="hidden"><p class="success">✓ Subscription verified successfully.</p><a class="btn download" id="download" href="#">↓ Download PDF</a></div><div id="failedActions" class="hidden"><p class="error">Subscription was not detected.</p><button class="btn youtube" id="openYoutubeAgain" type="button">Subscribe on YouTube</button><p class="note">After subscribing, return to this page. Verification will start automatically.</p></div><br><a class="btn home" href="index.html">Back to Home</a><p class="note">YouTube does not provide a direct Subscribe → redirect callback. The site opens the channel in a new tab and then starts secure Google/YouTube verification when you return.</p></div><script>const params=new URLSearchParams(location.search);const lang=params.get('lang');const verified=params.get('verified');const normal=document.getElementById('normalActions');const checking=document.getElementById('checkingActions');const success=document.getElementById('successActions');const failed=document.getElementById('failedActions');const message=document.getElementById('message');const channelUrl='https://www.youtube.com/channel/UCT6nDBzL6iwljJscE3iEYlg';let verificationStarted=false;let youtubeWindow=null;let userLeftThisPage=false;function showChecking(){normal.classList.add('hidden');failed.classList.add('hidden');success.classList.add('hidden');checking.classList.remove('hidden');message.textContent='You returned from YouTube. Checking your subscription now…'}function startVerification(){if(!lang||verificationStarted)return;verificationStarted=true;showChecking();location.href='/auth/youtube?lang='+encodeURIComponent(lang)}function openYoutubeAndWatch(){if(!lang)return alert('Please select a language first.');localStorage.setItem('shakarambham_waiting_for_subscription','1');youtubeWindow=window.open(channelUrl,'_blank','noopener,noreferrer');message.textContent='Subscribe to Raise Your Voice in the YouTube tab. Return to this page when finished.';normal.classList.add('hidden');checking.classList.remove('hidden')}window.addEventListener('blur',function(){if(localStorage.getItem('shakarambham_waiting_for_subscription')==='1')userLeftThisPage=true});window.addEventListener('focus',function(){if(localStorage.getItem('shakarambham_waiting_for_subscription')==='1'&&!verificationStarted){setTimeout(function(){if(document.hasFocus()&&userLeftThisPage){localStorage.removeItem('shakarambham_waiting_for_subscription');startVerification()}},800)}});document.getElementById('openYoutube').addEventListener('click',openYoutubeAndWatch);document.getElementById('openYoutubeAgain').addEventListener('click',openYoutubeAndWatch);if(verified==='1'&&lang){localStorage.removeItem('shakarambham_waiting_for_subscription');normal.classList.add('hidden');checking.classList.add('hidden');failed.classList.add('hidden');success.classList.remove('hidden');message.textContent='Your subscription has been verified. Click Download PDF to download the selected language edition.';document.getElementById('download').href='/download/'+encodeURIComponent(lang)}else if(verified==='0'&&lang){localStorage.removeItem('shakarambham_waiting_for_subscription');normal.classList.add('hidden');checking.classList.add('hidden');success.classList.add('hidden');failed.classList.remove('hidden');message.textContent='Please subscribe to the Raise Your Voice channel, then return here.'}</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+  <title>Subscribe to Download — Shakarambham</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #06265c;
+    }
+
+    .header {
+      height: 70px;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 30px;
+    }
+
+    .title {
+      font-size: 25px;
+      font-weight: 700;
+    }
+
+    .home-btn {
+      background: #ed1c24;
+      color: #fff;
+
+      border: none;
+      border-radius: 7px;
+
+      padding: 12px 20px;
+
+      font-size: 16px;
+      font-weight: bold;
+
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 680px;
+
+      margin: 70px auto;
+
+      background: #fff;
+
+      border: 1px solid #d8dee8;
+      border-radius: 12px;
+
+      padding: 45px;
+
+      text-align: center;
+
+      box-shadow:
+        0 10px 30px rgba(0, 0, 0, .06);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 30px;
+      color: #071b42;
+    }
+
+    p {
+      color: #40577c;
+      line-height: 1.6;
+    }
+
+    .btn {
+      display: inline-block;
+
+      border: 0;
+      border-radius: 7px;
+
+      padding: 13px 24px;
+      margin: 8px;
+
+      font-size: 16px;
+      font-weight: bold;
+
+      cursor: pointer;
+
+      text-decoration: none;
+    }
+
+    .youtube-btn {
+      background: #ff0000;
+      color: #fff;
+    }
+
+    .verify-btn {
+      background: #06265c;
+      color: #fff;
+    }
+
+    .download-btn {
+      background: #ffc400;
+      color: #111;
+    }
+
+    .message {
+      margin: 20px 0;
+
+      padding: 15px;
+
+      border-radius: 7px;
+
+      background: #fff3cd;
+      color: #664d03;
+    }
+
+    .success {
+      background: #d1e7dd;
+      color: #0f5132;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .step {
+      margin-top: 25px;
+    }
+
+    .language-name {
+      font-weight: bold;
+      color: #071b42;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <header class="header">
+
+    <div class="title">
+      శకారంభం — Download
+    </div>
+
+    <a
+      class="home-btn"
+      href="/">
+      ← Home
+    </a>
+
+  </header>
+
+
+  <main class="container">
+
+    <!-- =========================
+         STEP 1
+    ========================== -->
+
+    <section id="step1">
+
+      <h1>Subscribe to Download</h1>
+
+      <p>
+        You selected:
+        <span
+          id="languageName"
+          class="language-name">
+        </span>
+      </p>
+
+      <p>
+        Please subscribe to our YouTube channel first.
+        After subscribing, return to this page and verify
+        your subscription.
+      </p>
+
+
+      <div class="step">
+
+        <a
+          class="btn youtube-btn"
+          href="https://www.youtube.com/channel/UCT6nDBzL6iwljJscE3iEYlg"
+          target="_blank"
+          rel="noopener noreferrer">
+
+          ▶ Subscribe on YouTube
+
+        </a>
+
+      </div>
+
+
+      <div class="step">
+
+        <p>
+          Already subscribed?
+        </p>
+
+        <button
+          id="verifyBtn"
+          class="btn verify-btn"
+          type="button">
+
+          ✓ I Subscribed — Verify
+
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         NOT SUBSCRIBED
+    ========================== -->
+
+    <section
+      id="failed"
+      class="hidden">
+
+      <h1>Subscription Required</h1>
+
+      <div class="message">
+
+        ❌ Your YouTube subscription could not
+        be verified.
+
+      </div>
+
+      <p>
+        Please subscribe to the channel and then
+        click Verify Again.
+      </p>
+
+
+      <a
+        class="btn youtube-btn"
+        href="https://www.youtube.com/channel/UCT6nDBzL6iwljJscE3iEYlg"
+        target="_blank"
+        rel="noopener noreferrer">
+
+        ▶ Subscribe on YouTube
+
+      </a>
+
+
+      <button
+        id="retryBtn"
+        class="btn verify-btn"
+        type="button">
+
+        ✓ Verify Again
+
+      </button>
+
+    </section>
+
+
+    <!-- =========================
+         SUCCESS
+    ========================== -->
+
+    <section
+      id="success"
+      class="hidden">
+
+      <h1>Subscription Verified ✓</h1>
+
+      <div class="message success">
+
+        ✓ Your YouTube subscription has been
+        successfully verified.
+
+      </div>
+
+      <p>
+        Your selected language PDF is now available.
+      </p>
+
+
+      <button
+        id="finalDownloadBtn"
+        class="btn download-btn"
+        type="button">
+
+        ⇩ Download PDF
+
+      </button>
+
+    </section>
+
+  </main>
+
+
+  <script>
+
+    const params =
+      new URLSearchParams(window.location.search);
+
+    const lang =
+      params.get('lang');
+
+    const verified =
+      params.get('verified');
+
+
+    const languageNames = {
+
+      te: 'తెలుగు — Telugu',
+
+      en: 'English',
+
+      hi: 'हिन्दी — Hindi',
+
+      ta: 'தமிழ் — Tamil',
+
+      kn: 'ಕನ್ನಡ — Kannada'
+
+    };
+
+
+    const languageName =
+      document.getElementById('languageName');
+
+    const step1 =
+      document.getElementById('step1');
+
+    const failed =
+      document.getElementById('failed');
+
+    const success =
+      document.getElementById('success');
+
+    const verifyBtn =
+      document.getElementById('verifyBtn');
+
+    const retryBtn =
+      document.getElementById('retryBtn');
+
+    const finalDownloadBtn =
+      document.getElementById('finalDownloadBtn');
+
+
+    // ---------------------------------------------
+    // Validate language
+    // ---------------------------------------------
+
+    if (!lang || !languageNames[lang]) {
+
+      document.body.innerHTML = `
+        <div style="
+          padding:50px;
+          text-align:center;
+          font-family:Arial;
+        ">
+          <h1>Invalid language</h1>
+          <p>Please return to the home page and select a language.</p>
+          <a href="/">← Home</a>
+        </div>
+      `;
+
+      throw new Error('Invalid language');
+
+    }
+
+
+    languageName.textContent =
+      languageNames[lang];
+
+
+    // ---------------------------------------------
+    // Start Google / YouTube verification
+    // ---------------------------------------------
+
+    function verifySubscription() {
+
+      window.location.href =
+        '/auth/youtube?lang=' +
+        encodeURIComponent(lang);
+
+    }
+
+
+    verifyBtn.addEventListener(
+      'click',
+      verifySubscription
+    );
+
+
+    retryBtn.addEventListener(
+      'click',
+      verifySubscription
+    );
+
+
+    // ---------------------------------------------
+    // Verification result
+    // ---------------------------------------------
+
+    if (verified === '1') {
+
+      step1.classList.add('hidden');
+
+      failed.classList.add('hidden');
+
+      success.classList.remove('hidden');
+
+    }
+
+
+    else if (verified === '0') {
+
+      step1.classList.add('hidden');
+
+      success.classList.add('hidden');
+
+      failed.classList.remove('hidden');
+
+    }
+
+
+    // ---------------------------------------------
+    // Final download
+    // ---------------------------------------------
+
+    finalDownloadBtn.addEventListener(
+      'click',
+      function () {
+
+        window.location.href =
+          '/download/' +
+          encodeURIComponent(lang);
+
+      }
+    );
+
+  </script>
+
+</body>
+
+</html>
