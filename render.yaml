@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: shakarambham-production
+    name: shakarambham-digital-book
     runtime: node
     buildCommand: npm install
     startCommand: npm start
