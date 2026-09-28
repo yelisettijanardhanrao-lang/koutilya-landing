@@ -1,0 +1,14 @@
+SHAKARAMBHAM DIGITAL BOOK - PRODUCTION
+
+Domain: https://ebook.koutilyasolutions.in
+OAuth redirect URI: https://ebook.koutilyasolutions.in/auth/youtube
+
+Set these environment variables in the production host:
+NODE_ENV=production
+SESSION_SECRET=<long random secret>
+GOOGLE_CLIENT_ID=<Google OAuth client ID>
+GOOGLE_CLIENT_SECRET=<Google OAuth client secret>
+GOOGLE_REDIRECT_URI=https://ebook.koutilyasolutions.in/auth/youtube
+
+Current supplied PDF: private-pdfs/Shakarambham-merged.pdf (127 pages).
+It is used as the Telugu edition. Other language editions are disabled until their separate PDFs are supplied.

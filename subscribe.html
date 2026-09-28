@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+  <title>Subscribe to Download — Shakarambham</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #06265c;
+    }
+
+    .header {
+      height: 70px;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 30px;
+    }
+
+    .title {
+      font-size: 25px;
+      font-weight: 700;
+    }
+
+    .home-btn {
+      background: #ed1c24;
+      color: #fff;
+
+      border: none;
+      border-radius: 7px;
+
+      padding: 12px 20px;
+
+      font-size: 16px;
+      font-weight: bold;
+
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 680px;
+
+      margin: 70px auto;
+
+      background: #fff;
+
+      border: 1px solid #d8dee8;
+      border-radius: 12px;
+
+      padding: 45px;
+
+      text-align: center;
+
+      box-shadow:
+        0 10px 30px rgba(0, 0, 0, .06);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 30px;
+      color: #071b42;
+    }
+
+    p {
+      color: #40577c;
+      line-height: 1.6;
+    }
+
+    .btn {
+      display: inline-block;
+
+      border: 0;
+      border-radius: 7px;
+
+      padding: 13px 24px;
+      margin: 8px;
+
+      font-size: 16px;
+      font-weight: bold;
+
+      cursor: pointer;
+
+      text-decoration: none;
+    }
+
+    .youtube-btn {
+      background: #ff0000;
+      color: #fff;
+    }
+
+    .verify-btn {
+      background: #06265c;
+      color: #fff;
+    }
+
+    .download-btn {
+      background: #ffc400;
+      color: #111;
+    }
+
+    .message {
+      margin: 20px 0;
+
+      padding: 15px;
+
+      border-radius: 7px;
+
+      background: #fff3cd;
+      color: #664d03;
+    }
+
+    .success {
+      background: #d1e7dd;
+      color: #0f5132;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .step {
+      margin-top: 25px;
+    }
+
+    .language-name {
+      font-weight: bold;
+      color: #071b42;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <header class="header">
+
+    <div class="title">
+      శకారంభం — Download
+    </div>
+
+    <a
+      class="home-btn"
+      href="/">
+      ← Home
+    </a>
+
+  </header>
+
+
+  <main class="container">
+
+    <!-- =========================
+         STEP 1
+    ========================== -->
+
+    <section id="step1">
+
+      <h1>Subscribe to Download</h1>
+
+      <p>
+        You selected:
+        <span
+          id="languageName"
+          class="language-name">
+        </span>
+      </p>
+
+      <p>
+        Please subscribe to our YouTube channel first.
+        After subscribing, return to this page and verify
+        your subscription.
+      </p>
+
+
+      <div class="step">
+
+        <a
+          class="btn youtube-btn"
+          href="https://www.youtube.com/channel/UCT6nDBzL6iwljJscE3iEYlg"
+          target="_blank"
+          rel="noopener noreferrer">
+
+          ▶ Subscribe on YouTube
+
+        </a>
+
+      </div>
+
+
+      <div class="step">
+
+        <p>
+          Already subscribed?
+        </p>
+
+        <button
+          id="verifyBtn"
+          class="btn verify-btn"
+          type="button">
+
+          ✓ I Subscribed — Verify
+
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         NOT SUBSCRIBED
+    ========================== -->
+
+    <section
+      id="failed"
+      class="hidden">
+
+      <h1>Subscription Required</h1>
+
+      <div class="message">
+
+        ❌ Your YouTube subscription could not
+        be verified.
+
+      </div>
+
+      <p>
+        Please subscribe to the channel and then
+        click Verify Again.
+      </p>
+
+
+      <a
+        class="btn youtube-btn"
+        href="https://www.youtube.com/channel/UCT6nDBzL6iwljJscE3iEYlg"
+        target="_blank"
+        rel="noopener noreferrer">
+
+        ▶ Subscribe on YouTube
+
+      </a>
+
+
+      <button
+        id="retryBtn"
+        class="btn verify-btn"
+        type="button">
+
+        ✓ Verify Again
+
+      </button>
+
+    </section>
+
+
+    <!-- =========================
+         SUCCESS
+    ========================== -->
+
+    <section
+      id="success"
+      class="hidden">
+
+      <h1>Subscription Verified ✓</h1>
+
+      <div class="message success">
+
+        ✓ Your YouTube subscription has been
+        successfully verified.
+
+      </div>
+
+      <p>
+        Your selected language PDF is now available.
+      </p>
+
+
+      <button
+        id="finalDownloadBtn"
+        class="btn download-btn"
+        type="button">
+
+        ⇩ Download PDF
+
+      </button>
+
+    </section>
+
+  </main>
+
+
+  <script>
+
+    const params =
+      new URLSearchParams(window.location.search);
+
+    const lang =
+      params.get('lang');
+
+    const verified =
+      params.get('verified');
+
+
+    const languageNames = {
+
+      te: 'తెలుగు — Telugu',
+
+      en: 'English',
+
+      hi: 'हिन्दी — Hindi',
+
+      ta: 'தமிழ் — Tamil',
+
+      kn: 'ಕನ್ನಡ — Kannada'
+
+    };
+
+
+    const languageName =
+      document.getElementById('languageName');
+
+    const step1 =
+      document.getElementById('step1');
+
+    const failed =
+      document.getElementById('failed');
+
+    const success =
+      document.getElementById('success');
+
+    const verifyBtn =
+      document.getElementById('verifyBtn');
+
+    const retryBtn =
+      document.getElementById('retryBtn');
+
+    const finalDownloadBtn =
+      document.getElementById('finalDownloadBtn');
+
+
+    // ---------------------------------------------
+    // Validate language
+    // ---------------------------------------------
+
+    if (!lang || !languageNames[lang]) {
+
+      document.body.innerHTML = `
+        <div style="
+          padding:50px;
+          text-align:center;
+          font-family:Arial;
+        ">
+          <h1>Invalid language</h1>
+          <p>Please return to the home page and select a language.</p>
+          <a href="/">← Home</a>
+        </div>
+      `;
+
+      throw new Error('Invalid language');
+
+    }
+
+
+    languageName.textContent =
+      languageNames[lang];
+
+
+    // ---------------------------------------------
+    // Start Google / YouTube verification
+    // ---------------------------------------------
+
+    function verifySubscription() {
+
+      window.location.href =
+        '/auth/youtube?lang=' +
+        encodeURIComponent(lang);
+
+    }
+
+
+    verifyBtn.addEventListener(
+      'click',
+      verifySubscription
+    );
+
+
+    retryBtn.addEventListener(
+      'click',
+      verifySubscription
+    );
+
+
+    // ---------------------------------------------
+    // Verification result
+    // ---------------------------------------------
+
+    if (verified === '1') {
+
+      step1.classList.add('hidden');
+
+      failed.classList.add('hidden');
+
+      success.classList.remove('hidden');
+
+    }
+
+
+    else if (verified === '0') {
+
+      step1.classList.add('hidden');
+
+      success.classList.add('hidden');
+
+      failed.classList.remove('hidden');
+
+    }
+
+
+    // ---------------------------------------------
+    // Final download
+    // ---------------------------------------------
+
+    finalDownloadBtn.addEventListener(
+      'click',
+      function () {
+
+        window.location.href =
+          '/download/' +
+          encodeURIComponent(lang);
+
+      }
+    );
+
+  </script>
+
+</body>
+
+</html>

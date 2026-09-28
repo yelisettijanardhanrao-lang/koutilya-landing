@@ -1,0 +1,22 @@
+// Read-only PDF endpoint for the custom PDF.js canvas reader.
+app.get('/read-pdf/:lang', (req, res) => {
+  const lang = String(req.params.lang || '').toLowerCase();
+  const fileName = LANG_FILES[lang];
+  if (!fileName) return res.status(400).send('Invalid language.');
+
+  const filePath = path.resolve(PRIVATE_DIR, fileName);
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send(`PDF not installed: ${fileName}`);
+  }
+
+  // The UI never exposes the browser's native PDF toolbar.
+  // These headers also prevent normal caching and inline download disposition.
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', 'inline');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Accept-Ranges', 'bytes');
+  return res.sendFile(filePath);
+});
