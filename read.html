@@ -6,35 +6,54 @@
 <title>శకారంభం — Read Online</title>
 <link rel="stylesheet" href="styles.css">
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}
-body.reader-page{background:#f4f6f8;font-family:Arial,"Noto Sans Telugu",sans-serif;user-select:none;-webkit-user-select:none}
-.reader-shell{height:100dvh;display:flex;flex-direction:column;min-height:0}
-.reader-header{height:70px;flex:0 0 70px;background:#fff;border:1px solid #d8d8d8;display:flex;align-items:center;justify-content:space-between;padding:0 28px;gap:12px}
-.reader-title{color:#071b42;font-size:22px;font-weight:800;min-width:0}.reader-home{background:#ed1c24;color:#fff;text-decoration:none;padding:11px 18px;border-radius:7px;font-weight:700;white-space:nowrap}
-.reader-languages{height:80px;flex:0 0 80px;background:#fff;border-bottom:1px solid #d8d8d8;display:flex;align-items:center;justify-content:center;gap:10px}.reader-languages strong{color:#071b42;margin-right:6px;white-space:nowrap}
-.reader-lang{border:1px solid #d4dbe7;background:#fff;color:#071b42;border-radius:7px;padding:11px 22px;font-weight:700;cursor:pointer;font-size:14px;white-space:nowrap}.reader-lang.active{background:#ffc900;border-color:#ffc900}
-.reader-area{position:relative;flex:1;min-height:0;background:#e9edf1;display:flex;flex-direction:column}
-.reader-toolbar{min-height:54px;height:54px;flex:0 0 54px;background:#fff;border-bottom:1px solid #cfd6df;display:flex;align-items:center;justify-content:center;gap:8px;padding:5px 8px;overflow-x:auto}
-.reader-toolbar button{border:1px solid #cbd3dd;background:#fff;border-radius:6px;padding:7px 12px;color:#071b42;font-weight:700;cursor:pointer;white-space:nowrap}.reader-toolbar button:disabled{opacity:.45;cursor:not-allowed}
-.page-info{min-width:105px;text-align:center;color:#071b42;font-weight:700;white-space:nowrap}.reader-canvas-wrap{flex:1;min-height:0;overflow:auto;text-align:center;padding:18px;-webkit-overflow-scrolling:touch}
-.page-container{display:inline-block;background:#fff;box-shadow:0 2px 14px rgba(0,0,0,.18);line-height:0;max-width:none}.page-container canvas{display:block}
-.reader-message{position:absolute;inset:54px 0 0;display:flex;align-items:center;justify-content:center}.reader-message-box{background:#fff;border:1px solid #d9dfe8;border-radius:12px;padding:42px 60px;text-align:center;box-shadow:0 8px 28px rgba(10,30,60,.08);color:#35557e}.reader-message-box h1{color:#071b42;margin:0 0 10px}.reader-error{display:none;color:#b00020;background:#fff;padding:18px;text-align:center;font-weight:700}.busy{display:none;color:#35557e;font-weight:700}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{background:#eef1f5;font-family:Arial,"Noto Sans Telugu",sans-serif}
+.reader{height:100dvh;display:flex;flex-direction:column}
+.header{height:62px;flex:0 0 62px;background:#fff;border-bottom:1px solid #d6dce4;display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:12px}
+.title{font-size:20px;font-weight:800;color:#071b42;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home{background:#ed1c24;color:#fff;text-decoration:none;padding:10px 16px;border-radius:7px;font-weight:700;white-space:nowrap}
+.langs{min-height:58px;background:#fff;border-bottom:1px solid #d6dce4;display:flex;align-items:center;justify-content:center;gap:9px;padding:7px;overflow-x:auto}
+.langs strong{color:#071b42;white-space:nowrap}
+.lang{border:1px solid #cbd4e0;background:#fff;color:#071b42;border-radius:7px;padding:9px 18px;font-weight:700;white-space:nowrap}
+.lang.active{background:#ffc900;border-color:#ffc900}
+.viewer{position:relative;flex:1;min-height:0;background:#dfe4e9}
+#pdfFrame{display:block;width:100%;height:100%;border:0;background:#fff}
+.loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#eef1f5;color:#071b42;font-weight:700;z-index:2}
+.loading.hidden{display:none}
 @media(max-width:700px){
-.reader-header{height:54px;flex:0 0 54px;padding:0 9px;gap:8px}.reader-title{font-size:14px;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.reader-home{font-size:11px;padding:8px 10px;border-radius:6px}
-.reader-languages{height:58px;min-height:58px;flex:0 0 58px;overflow-x:auto;justify-content:flex-start;padding:7px 8px;gap:7px;-webkit-overflow-scrolling:touch}.reader-languages strong{font-size:11px;margin-right:2px}.reader-lang{padding:8px 12px;font-size:11px}
-.reader-toolbar{height:46px;min-height:46px;flex:0 0 46px;justify-content:flex-start;gap:5px;padding:4px 6px;overflow-x:auto}.reader-toolbar button{font-size:10px;padding:6px 8px}.page-info{min-width:58px;font-size:10px}.reader-canvas-wrap{padding:6px;overflow:auto}
-.reader-message{inset:46px 0 0}.reader-message-box{max-width:calc(100% - 24px);padding:24px 14px}.reader-message-box h1{font-size:20px}
+.header{height:52px;flex-basis:52px;padding:0 8px}
+.title{font-size:14px}
+.home{font-size:11px;padding:8px 10px}
+.langs{min-height:54px;justify-content:flex-start;padding:6px;gap:6px}
+.langs strong{font-size:11px}.lang{font-size:11px;padding:8px 11px}
 }
 </style>
 </head>
-<body class="reader-page">
-<div class="reader-shell">
-<header class="reader-header"><div class="reader-title">శకారంభం — Read Online</div><a class="reader-home" href="index.html">← Home</a></header>
-<div class="reader-languages"><strong>Select Language:</strong><button type="button" class="reader-lang active" data-lang="te">తెలుగు</button><button type="button" class="reader-lang" data-lang="en">English</button></div>
-<section class="reader-area">
-<div class="reader-toolbar"><button id="prevBtn" type="button">← Previous</button><div class="page-info"><span id="pageNum">1</span> / <span id="pageCount">—</span></div><button id="nextBtn" type="button">Next →</button><button id="zoomOut" type="button">−</button><button id="zoomReset" type="button">100%</button><button id="zoomIn" type="button">+</button></div>
-<div id="readerMessage" class="reader-message"><div class="reader-message-box"><h1>Loading…</h1><p class="busy">Please wait.</p></div></div><div id="readerError" class="reader-error"></div>
-<div id="canvasWrap" class="reader-canvas-wrap" hidden><div id="pageContainer" class="page-container"><canvas id="pdfCanvas"></canvas></div></div>
-</section></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs" type="module"></script><script src="read.js" type="module"></script>
-</body></html>
+<body>
+<div class="reader">
+<header class="header"><div class="title">శకారంభం — Read Online</div><a class="home" href="index.html">← Home</a></header>
+<div class="langs"><strong>Select Language:</strong><button class="lang active" data-lang="te" type="button">తెలుగు</button><button class="lang" data-lang="en" type="button">English</button></div>
+<main class="viewer">
+<div id="loading" class="loading">Loading book…</div>
+<iframe id="pdfFrame" title="Shakarambham eBook"></iframe>
+</main>
+</div>
+<script>
+(function(){
+ const frame=document.getElementById('pdfFrame');
+ const loading=document.getElementById('loading');
+ const buttons=document.querySelectorAll('.lang');
+ const urls={te:'/read-pdf/te',en:'/read-pdf/en'};
+ function openBook(lang){
+   buttons.forEach(function(b){b.classList.toggle('active',b.dataset.lang===lang);});
+   loading.classList.remove('hidden');
+   frame.src=urls[lang]+'?v='+Date.now();
+ }
+ frame.addEventListener('load',function(){loading.classList.add('hidden');});
+ buttons.forEach(function(b){b.addEventListener('click',function(){openBook(b.dataset.lang);});});
+ openBook('te');
+})();
+</script>
+</body>
+</html>
