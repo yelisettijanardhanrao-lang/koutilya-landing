@@ -168,3 +168,25 @@ body{font-family:Arial,"Noto Sans Telugu",sans-serif;background:#fff;color:#071b
 .contact-grid{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.contact-grid article{background:#fff;border:1px solid #dfe4eb;border-radius:10px;padding:30px;text-align:center;box-shadow:0 3px 12px rgba(10,30,60,.07)}
 .contact-icon{width:55px;height:55px;margin:0 auto 14px;border-radius:50%;background:#ffd000;display:grid;place-items:center;font-size:22px}.contact-grid h2{color:#0d1a3a;font-size:20px;margin:8px 0}.contact-grid p{color:#657187;font-size:14px;line-height:1.6;margin:0}.center-link{display:flex;width:max-content;margin:30px auto 0}
 @media(max-width:900px){.site-nav{height:48px}.site-nav a{padding:0 9px;font-size:12px}.site-scroll{top:calc(clamp(48px,10.55vw,81px) + 48px);bottom:clamp(55px,10vw,90px)}.about-content-page,.contact-content-page{padding:28px 24px}.about-grid,.contact-grid{grid-template-columns:1fr}.about-heading h1,.contact-heading h1{font-size:32px}.about-text h2{font-size:24px}.about-text p,.contact-heading p{font-size:14px}.contact-grid{gap:12px}}
+
+
+/* Mobile layout fix: allow natural page height and stack action cards. */
+@media (max-width: 700px){
+  html,body{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
+  .page{width:100%;min-height:100dvh;height:auto;overflow:visible;display:block}
+  .top-fixed,.bottom-fixed,.hero{width:100%;overflow:hidden}
+  .top-fixed img,.bottom-fixed img,.hero img{width:100%;height:auto;display:block}
+  .nav-fixed{height:48px;min-height:48px;flex:none;position:relative;z-index:5}
+  .content{display:block;overflow:visible;min-height:0}
+  .hero{width:100%}
+  .actions{display:flex;flex-direction:column;gap:12px;padding:12px 10px 18px;overflow:visible}
+  .card{width:100%;min-height:118px;height:auto;padding:14px 12px;overflow:visible;align-items:center}
+  .icon{flex:0 0 38px;width:38px;height:38px;margin-right:10px;font-size:17px}
+  .card h2{font-size:15px;line-height:1.25;white-space:normal;margin:0 0 6px}
+  .card p{font-size:11px;line-height:1.4;white-space:normal;margin:0 0 10px}
+  .btn{height:36px;font-size:12px;padding:0 14px}
+  .controls{display:flex;flex-wrap:wrap;gap:8px}
+  .controls select{width:100%;max-width:260px;height:36px;font-size:12px}
+  .yellow-btn{height:36px;font-size:12px}
+  .bottom-fixed{margin-top:0}
+}
