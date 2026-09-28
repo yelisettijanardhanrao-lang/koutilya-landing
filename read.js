@@ -2,12 +2,11 @@ import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
 
-const pdfs={te:"/read-pdf/te",en:"/read-pdf/en",hi:"/read-pdf/hi",ta:"/read-pdf/ta",kn:"/read-pdf/kn"};
+const pdfs={te:"/read-pdf/te",en:"/read-pdf/en"};
 const buttons=document.querySelectorAll(".reader-lang");
 const canvas=document.getElementById("pdfCanvas");
 const ctx=canvas.getContext("2d",{alpha:false});
 const wrap=document.getElementById("canvasWrap");
-const pageContainer=document.getElementById("pageContainer");
 const message=document.getElementById("readerMessage");
 const errorBox=document.getElementById("readerError");
 const pageNum=document.getElementById("pageNum");
@@ -46,7 +45,7 @@ async function openLanguage(lang){
   loadingTask=pdfjsLib.getDocument({url,withCredentials:true,disableAutoFetch:false,disableStream:false});
   pdf=await loadingTask.promise; pageCount.textContent=pdf.numPages;
   await renderPage();
- }catch(e){console.error("PDF load error",e);showError("Unable to open this language PDF. Please check the local server and PDF file.");}
+ }catch(e){console.error("PDF load error",e);showError("Unable to open this language PDF. Please check the server and PDF file.");}
 }
 buttons.forEach(b=>b.addEventListener("click",()=>openLanguage(b.dataset.lang)));
 prevBtn.addEventListener("click",()=>{if(currentPage>1){currentPage--;renderPage()}});
