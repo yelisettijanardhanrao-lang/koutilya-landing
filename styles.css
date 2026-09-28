@@ -170,129 +170,25 @@ body{font-family:Arial,"Noto Sans Telugu",sans-serif;background:#fff;color:#071b
 @media(max-width:900px){.site-nav{height:48px}.site-nav a{padding:0 9px;font-size:12px}.site-scroll{top:calc(clamp(48px,10.55vw,81px) + 48px);bottom:clamp(55px,10vw,90px)}.about-content-page,.contact-content-page{padding:28px 24px}.about-grid,.contact-grid{grid-template-columns:1fr}.about-heading h1,.contact-heading h1{font-size:32px}.about-text h2{font-size:24px}.about-text p,.contact-heading p{font-size:14px}.contact-grid{gap:12px}}
 
 
-/* Final mobile Home page layout */
-@media (max-width:700px){
-  html,body{
-    width:100%;
-    min-width:0;
-    height:auto;
-    min-height:100%;
-    margin:0;
-    overflow-x:hidden;
-    overflow-y:auto;
-  }
-  body{font-size:16px;background:#fff;}
-  .page{
-    width:100%;
-    min-width:0;
-    min-height:100dvh;
-    height:auto;
-    display:block;
-    overflow:visible;
-  }
-  .top-fixed,.hero,.bottom-fixed{
-    width:100%;
-    max-width:100%;
-    height:auto;
-    overflow:hidden;
-    line-height:0;
-  }
-  .top-fixed img,.hero img,.bottom-fixed img{
-    display:block;
-    width:100%;
-    max-width:100%;
-    height:auto;
-  }
-  .nav-fixed{
-    width:100%;
-    height:48px;
-    min-height:48px;
-    flex:none;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:4px;
-    position:relative;
-    z-index:2;
-  }
-  .nav-fixed a{
-    height:34px;
-    padding:0 13px;
-    border-radius:6px;
-    font-size:13px;
-  }
-  .content{
-    width:100%;
-    min-width:0;
-    min-height:0;
-    display:block;
-    overflow:visible;
-  }
-  .hero{width:100%;}
-  .actions{
-    width:100%;
-    min-width:0;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    padding:12px 10px 18px;
-    overflow:visible;
-  }
-  .card{
-    width:100%;
-    min-width:0;
-    min-height:0;
-    height:auto;
-    display:flex;
-    align-items:flex-start;
-    padding:14px;
-    overflow:visible;
-    border-radius:8px;
-  }
-  .card>div:last-child{min-width:0;flex:1 1 auto;}
-  .icon{
-    flex:0 0 38px;
-    width:38px;
-    height:38px;
-    margin-right:10px;
-    font-size:17px;
-  }
-  .card h2{
-    margin:0 0 6px;
-    font-size:15px;
-    line-height:1.25;
-    white-space:normal;
-  }
-  .card p{
-    margin:0 0 10px;
-    font-size:11px;
-    line-height:1.4;
-    white-space:normal;
-  }
-  .btn{
-    height:36px;
-    padding:0 14px;
-    font-size:12px;
-    max-width:100%;
-  }
-  .controls{
-    width:100%;
-    display:flex;
-    flex-direction:column;
-    align-items:stretch;
-    gap:8px;
-  }
-  .controls select{
-    width:100%;
-    max-width:none;
-    height:36px;
-    font-size:12px;
-  }
-  .yellow-btn{
-    width:max-content;
-    max-width:100%;
-    height:36px;
-    font-size:12px;
-  }
-  .bottom-fixed{margin-top:0;}
+/* Final responsive Home page — applies to phones and narrow screens */
+@media (max-width:900px){
+  html,body{width:100%;min-width:0;height:auto;min-height:100%;margin:0;overflow-x:hidden;overflow-y:auto}
+  body{background:#fff}
+  .page{width:100%;min-width:0;min-height:100dvh;height:auto;display:block;overflow:visible}
+  .top-fixed,.hero,.bottom-fixed{width:100%;height:auto;overflow:hidden;line-height:0}
+  .top-fixed img,.hero img,.bottom-fixed img{display:block;width:100%;height:auto;max-width:100%}
+  .nav-fixed{width:100%;height:48px;min-height:48px;display:flex;position:relative;gap:4px;justify-content:center;align-items:center}
+  .nav-fixed a{height:34px;padding:0 13px;font-size:13px}
+  .content{width:100%;min-width:0;height:auto;min-height:0;display:block;overflow:visible}
+  .hero{width:100%}
+  .actions{width:100%;min-width:0;height:auto;display:flex;flex-direction:column;gap:12px;padding:12px 10px 18px;overflow:visible}
+  .card{width:100%;min-width:0;height:auto;min-height:0;display:flex;align-items:flex-start;padding:14px;overflow:visible}
+  .card>div:last-child{min-width:0;flex:1 1 auto}
+  .icon{flex:0 0 38px;width:38px;height:38px;margin-right:10px;font-size:17px}
+  .card h2{margin:0 0 6px;font-size:15px;line-height:1.25;white-space:normal}
+  .card p{margin:0 0 10px;font-size:11px;line-height:1.4;white-space:normal}
+  .btn{height:36px;padding:0 14px;font-size:12px;max-width:100%}
+  .controls{width:100%;display:flex;flex-direction:column;align-items:stretch;gap:8px}
+  .controls select{width:100%;max-width:none;height:36px;font-size:12px}
+  .yellow-btn{width:max-content;max-width:100%;height:36px;font-size:12px}
 }
