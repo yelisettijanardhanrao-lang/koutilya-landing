@@ -32,7 +32,8 @@ async function renderPage(){
  rendering=true; prevBtn.disabled=currentPage<=1; nextBtn.disabled=currentPage>=pdf.numPages; pageNum.textContent=currentPage;
  try{
   const page=await pdf.getPage(currentPage);
-  await fitPageToMobileWidth(page);\n  const viewport=page.getViewport({scale});
+  await fitPageToMobileWidth(page);
+  const viewport=page.getViewport({scale});
   const dpr=Math.min(window.devicePixelRatio||1,2);
   canvas.width=Math.floor(viewport.width*dpr); canvas.height=Math.floor(viewport.height*dpr);
   canvas.style.width=Math.floor(viewport.width)+"px"; canvas.style.height=Math.floor(viewport.height)+"px";
@@ -49,7 +50,7 @@ async function openLanguage(lang){
  if(loadingTask){try{await loadingTask.destroy();}catch{}}
  if(pdf){try{await pdf.destroy();}catch{}}
  try{
-  loadingTask=pdfjsLib.getDocument({url,withCredentials:true,disableAutoFetch:false,disableStream:false});
+  loadingTask=pdfjsLib.getDocument({url,withCredentials:false,disableAutoFetch:false,disableStream:false});
   pdf=await loadingTask.promise; pageCount.textContent=pdf.numPages;
   await renderPage();
  }catch(e){console.error("PDF load error",e);showError("Unable to open this language PDF. Please check the server and PDF file.");}
