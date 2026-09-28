@@ -161,13 +161,59 @@ app.get('/read-pdf/:lang', (req, res) => {
     return res.status(404).send('PDF not installed.');
   }
 
-  const stat = fs.statSync(filePath);
+  const size = fs.statSync(filePath).size;
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', 'inline');
-  res.setHeader('Content-Length', String(stat.size));
   res.setHeader('Accept-Ranges', 'bytes');
-  res.setHeader('Cache-Control', 'no-store');
-  return fs.createReadStream(filePath).pipe(res);
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+
+  // Safari/iOS PDF viewer relies on HTTP byte-range requests for large PDFs.
+  const range = req.headers.range;
+
+  if (!range) {
+    res.setHeader('Content-Length', String(size));
+    return fs.createReadStream(filePath).pipe(res);
+  }
+
+  const match = /^bytes=(\\d*)-(\\d*)$/.exec(range);
+  if (!match) {
+    res.status(416).setHeader('Content-Range', `bytes */${size}`);
+    return res.end();
+  }
+
+  let startByte = match[1] ? Number(match[1]) : 0;
+  let endByte = match[2] ? Number(match[2]) : size - 1;
+
+  if (!Number.isInteger(startByte) || !Number.isInteger(endByte) ||
+      startByte < 0 || endByte < startByte || startByte >= size) {
+    res.status(416).setHeader('Content-Range', `bytes */${size}`);
+    return res.end();
+  }
+
+  endByte = Math.min(endByte, size - 1);
+  const chunkSize = endByte - startByte + 1;
+
+  res.status(206);
+  res.setHeader('Content-Range', `bytes ${startByte}-${endByte}/${size}`);
+  res.setHeader('Content-Length', String(chunkSize));
+
+  return fs.createReadStream(filePath, { start: startByte, end: endByte }).pipe(res);
+});
+
+app.head('/read-pdf/:lang', (req, res) => {
+  const lang = String(req.params.lang || '').toLowerCase();
+  const fileName = LANG_FILES[lang];
+  if (!fileName) return res.status(400).end();
+
+  const filePath = path.join(PRIVATE_DIR, fileName);
+  if (!fs.existsSync(filePath)) return res.status(404).end();
+
+  const size = fs.statSync(filePath).size;
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Length', String(size));
+  res.setHeader('Accept-Ranges', 'bytes');
+  res.setHeader('Content-Disposition', 'inline');
+  return res.status(200).end();
 });
 
 app.listen(PORT, () => {
