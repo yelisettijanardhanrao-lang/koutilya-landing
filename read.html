@@ -4,50 +4,56 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>శకారంభం — Read Online</title>
-<link rel="stylesheet" href="styles.css">
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}
-body{background:#eef1f5;font-family:Arial,"Noto Sans Telugu",sans-serif}
-.reader{height:100dvh;display:flex;flex-direction:column}
-.header{height:62px;flex:0 0 62px;background:#fff;border-bottom:1px solid #d6dce4;display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:12px}
-.title{font-size:20px;font-weight:800;color:#071b42;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.home{background:#ed1c24;color:#fff;text-decoration:none;padding:10px 16px;border-radius:7px;font-weight:700;white-space:nowrap}
-.langs{min-height:58px;background:#fff;border-bottom:1px solid #d6dce4;display:flex;align-items:center;justify-content:center;gap:9px;padding:7px;overflow-x:auto}
-.langs strong{color:#071b42;white-space:nowrap}
-.lang{border:1px solid #cbd4e0;background:#fff;color:#071b42;border-radius:7px;padding:9px 18px;font-weight:700;white-space:nowrap}
-.lang.active{background:#ffc900;border-color:#ffc900}
-.viewer{position:relative;flex:1;min-height:0;background:#dfe4e9;display:flex;align-items:center;justify-content:center;padding:18px}
-.openBook{display:inline-block;background:#ed1c24;color:#fff;text-decoration:none;padding:15px 28px;border-radius:8px;font-weight:800;font-size:17px}
-.note{margin-top:12px;text-align:center;color:#071b42;font-size:13px}
-@media(max-width:700px){
-.header{height:52px;flex-basis:52px;padding:0 8px}.title{font-size:14px}.home{font-size:11px;padding:8px 10px}
-.langs{min-height:54px;justify-content:flex-start;padding:6px;gap:6px}.langs strong{font-size:11px}.lang{font-size:11px;padding:8px 11px}
-.openBook{font-size:15px;padding:13px 22px}.note{font-size:12px}
-}
+*{box-sizing:border-box}html,body{margin:0;width:100%;min-height:100%;font-family:Arial,"Noto Sans Telugu",sans-serif;background:#dfe4e9}
+.header{height:62px;background:#fff;border-bottom:1px solid #d6dce4;display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:12px;position:sticky;top:0;z-index:10}
+.title{font-size:20px;font-weight:800;color:#071b42;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.home{background:#ed1c24;color:#fff;text-decoration:none;padding:10px 16px;border-radius:7px;font-weight:700}
+.langs{min-height:58px;background:#fff;border-bottom:1px solid #d6dce4;display:flex;align-items:center;justify-content:center;gap:9px;padding:7px;position:sticky;top:62px;z-index:9}
+.langs strong{color:#071b42;white-space:nowrap}.lang{border:1px solid #cbd4e0;background:#fff;color:#071b42;border-radius:7px;padding:9px 18px;font-weight:700}.lang.active{background:#ffc900;border-color:#ffc900}
+#book{padding:16px 8px 40px;text-align:center}.page{display:block;margin:0 auto 14px;max-width:100%;height:auto;box-shadow:0 1px 5px #888;background:#fff}
+.status{padding:35px;text-align:center;color:#071b42;font-weight:700}
+@media(max-width:700px){.header{height:52px;padding:0 8px}.title{font-size:14px}.home{font-size:11px;padding:8px 10px}.langs{top:52px;min-height:54px;justify-content:flex-start;padding:6px;gap:6px}.langs strong{font-size:11px}.lang{font-size:11px;padding:8px 11px}#book{padding:8px 3px 25px}.page{margin-bottom:8px}}
 </style>
 </head>
 <body>
-<div class="reader">
 <header class="header"><div class="title">శకారంభం — Read Online</div><a class="home" href="index.html">← Home</a></header>
 <div class="langs"><strong>Select Language:</strong><button class="lang active" data-lang="te" type="button">తెలుగు</button><button class="lang" data-lang="en" type="button">English</button></div>
-<main class="viewer">
-<div>
-<a id="openBook" class="openBook" href="/read-pdf/te">Open Book</a>
-<div class="note">Tap “Open Book” to read the eBook in your phone's built-in PDF viewer.</div>
-</div>
-</main>
-</div>
+<main id="book"><div class="status">Loading book…</div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 (function(){
- const link=document.getElementById('openBook');
- const buttons=document.querySelectorAll('.lang');
+ const book=document.getElementById('book'), buttons=document.querySelectorAll('.lang');
  const urls={te:'/read-pdf/te',en:'/read-pdf/en'};
- function setBook(lang){
-   buttons.forEach(function(b){b.classList.toggle('active',b.dataset.lang===lang);});
-   link.href=urls[lang];
+ pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+ let task=null, token=0;
+ async function openBook(lang){
+   const my=++token;
+   buttons.forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
+   if(task){try{task.destroy();}catch(e){} task=null;}
+   book.innerHTML='<div class="status">Loading book…</div>';
+   try{
+     task=pdfjsLib.getDocument({url:urls[lang]+'?v='+Date.now(),withCredentials:false});
+     const pdf=await task.promise;
+     if(my!==token)return;
+     book.innerHTML='';
+     for(let n=1;n<=pdf.numPages;n++){
+       if(my!==token)return;
+       const page=await pdf.getPage(n);
+       const base=page.getViewport({scale:1});
+       const maxWidth=Math.min(window.innerWidth-10,1100);
+       const scale=maxWidth/base.width;
+       const viewport=page.getViewport({scale:scale});
+       const canvas=document.createElement('canvas');
+       canvas.className='page'; canvas.width=Math.ceil(viewport.width); canvas.height=Math.ceil(viewport.height);
+       book.appendChild(canvas);
+       await page.render({canvasContext:canvas.getContext('2d'),viewport:viewport}).promise;
+     }
+   }catch(e){
+     if(my===token)book.innerHTML='<div class="status">Unable to open this book. Please try again.</div>';
+   }
  }
- buttons.forEach(function(b){b.addEventListener('click',function(){setBook(b.dataset.lang);});});
- setBook('te');
+ buttons.forEach(b=>b.addEventListener('click',()=>openBook(b.dataset.lang)));
+ openBook('te');
 })();
 </script>
 </body>
