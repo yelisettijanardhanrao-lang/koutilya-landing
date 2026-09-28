@@ -15,7 +15,6 @@
     <nav class="nav-fixed">
       <a class="active" href="index.html">⌂ Home</a>
       <a href="author.html">Author</a>
-    
     </nav>
 
     <main class="content">
@@ -34,51 +33,24 @@
         </article>
 
         <article class="card">
-  <div class="icon yellow">⇩</div>
+          <div class="icon yellow">⇩</div>
+          <div class="download">
+            <h2>Download PDF</h2>
+            <p>Download the Shakarambham book in Telugu or English.</p>
 
-  <div class="download">
-    <h2>Download PDF</h2>
+            <div class="controls">
+              <select id="downloadLanguage">
+                <option value="">Select Language</option>
+                <option value="te">తెలుగు — Telugu</option>
+                <option value="en">English</option>
+              </select>
 
-    <p>
-      Download the Shakarambham book in your preferred language.
-    </p>
-
-    <div class="controls">
-
-      <select id="downloadLanguage">
-        <option value="">Select Language</option>
-
-        <option value="te">
-          తెలుగు — Telugu
-        </option>
-
-        <option value="en">
-          English
-        </option>
-
-        <option value="hi">
-          हिन्दी — Hindi
-        </option>
-
-        <option value="ta">
-          தமிழ் — Tamil
-        </option>
-
-        <option value="kn">
-          ಕನ್ನಡ — Kannada
-        </option>
-      </select>
-
-      <button
-        class="btn yellow-btn"
-        id="downloadBtn"
-        type="button">
-        ⇩ Download PDF
-      </button>
-
-    </div>
-  </div>
-</article>
+              <button class="btn yellow-btn" id="downloadBtn" type="button">
+                ⇩ Download PDF
+              </button>
+            </div>
+          </div>
+        </article>
       </section>
     </main>
 
@@ -87,33 +59,5 @@
     </footer>
   </div>
   <script src="app.js"></script>
-
-  <script>
-document.addEventListener("DOMContentLoaded", function () {
-
-  const languageSelect = document.getElementById("downloadLanguage");
-  const downloadBtn = document.getElementById("downloadBtn");
-  const message = document.getElementById("downloadMessage");
-
-  downloadBtn.addEventListener("click", function () {
-
-    const lang = languageSelect.value;
-
-    if (!lang) {
-      message.textContent = "Please select a language first.";
-      message.style.color = "#ed1c24";
-      return;
-    }
-
-    message.textContent = "Please complete YouTube verification...";
-    message.style.color = "#071b42";
-
-    // Send selected language to the server
-    window.location.href =
-      "/auth/youtube?lang=" + encodeURIComponent(lang);
-  });
-
-});
-</script>
 </body>
 </html>
