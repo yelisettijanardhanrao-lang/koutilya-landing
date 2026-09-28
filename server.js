@@ -175,7 +175,7 @@ app.get('/read-pdf/:lang', (req, res) => {
     return fs.createReadStream(filePath).pipe(res);
   }
 
-  const match = /^bytes=(\\d*)-(\\d*)$/.exec(range);
+  const match = /^bytes=(\d*)-(\d*)$/.exec(range);
   if (!match) {
     res.status(416).setHeader('Content-Range', `bytes */${size}`);
     return res.end();
