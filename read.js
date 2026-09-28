@@ -50,7 +50,12 @@ async function openLanguage(lang){
  if(loadingTask){try{await loadingTask.destroy();}catch{}}
  if(pdf){try{await pdf.destroy();}catch{}}
  try{
-  loadingTask=pdfjsLib.getDocument({url,withCredentials:false,disableAutoFetch:false,disableStream:false});
+  // Load the complete PDF first. This avoids Safari/iOS range-streaming
+  // differences and gives PDF.js a stable in-memory document.
+  const response=await fetch(url,{credentials:"same-origin",cache:"no-store"});
+  if(!response.ok)throw new Error("PDF request failed: "+response.status);
+  const data=new Uint8Array(await response.arrayBuffer());
+  loadingTask=pdfjsLib.getDocument({data,disableWorker:true});
   pdf=await loadingTask.promise; pageCount.textContent=pdf.numPages;
   await renderPage();
  }catch(e){console.error("PDF load error",e);showError("Unable to open this language PDF. Please check the server and PDF file.");}
