@@ -22,34 +22,46 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 (function(){
- const book=document.getElementById('book'), buttons=document.querySelectorAll('.lang');
+ const book=document.getElementById('book'),buttons=document.querySelectorAll('.lang');
  const urls={te:'/read-pdf/te',en:'/read-pdf/en'};
- pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
- let task=null, token=0;
+ let task=null,token=0;
+ function showError(){book.innerHTML='<div class="status">Unable to open this book. Please try again.</div>';}
  async function openBook(lang){
    const my=++token;
    buttons.forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
-   if(task){try{task.destroy();}catch(e){} task=null;}
+   if(task){try{task.destroy();}catch(e){}task=null;}
    book.innerHTML='<div class="status">Loading book…</div>';
    try{
-     task=pdfjsLib.getDocument({url:urls[lang]+'?v='+Date.now(),withCredentials:false});
+     task=pdfjsLib.getDocument({
+       url:urls[lang]+'?v='+Date.now(),
+       withCredentials:false,
+       disableWorker:true,
+       disableRange:true,
+       disableStream:true,
+       disableAutoFetch:true,
+       rangeChunkSize:65536
+     });
      const pdf=await task.promise;
      if(my!==token)return;
      book.innerHTML='';
+     const maxWidth=Math.min(window.innerWidth-10,1100);
      for(let n=1;n<=pdf.numPages;n++){
        if(my!==token)return;
        const page=await pdf.getPage(n);
        const base=page.getViewport({scale:1});
-       const maxWidth=Math.min(window.innerWidth-10,1100);
        const scale=maxWidth/base.width;
        const viewport=page.getViewport({scale:scale});
        const canvas=document.createElement('canvas');
-       canvas.className='page'; canvas.width=Math.ceil(viewport.width); canvas.height=Math.ceil(viewport.height);
+       canvas.className='page';
+       canvas.width=Math.ceil(viewport.width);
+       canvas.height=Math.ceil(viewport.height);
        book.appendChild(canvas);
        await page.render({canvasContext:canvas.getContext('2d'),viewport:viewport}).promise;
+       page.cleanup();
      }
    }catch(e){
-     if(my===token)book.innerHTML='<div class="status">Unable to open this book. Please try again.</div>';
+     console.error('PDF reader error:',e);
+     if(my===token)showError();
    }
  }
  buttons.forEach(b=>b.addEventListener('click',()=>openBook(b.dataset.lang)));
