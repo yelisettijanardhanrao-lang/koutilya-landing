@@ -80,7 +80,7 @@ app.get('/auth/youtube', async (req, res) => {
       return res.redirect('/subscribe.html?lang=' + encodeURIComponent(lang) + '&verified=1');
     }
 
-    const lang = String(req.query.lang || '');
+    const lang = String(req.query.lang || '').toLowerCase();
 
     if (!LANG_FILES[lang]) {
       return res.status(400).send('Invalid language.');
@@ -136,9 +136,15 @@ app.get('/download/:lang', (req, res) => {
     return res.status(404).send(`The ${lang} language PDF is not installed on the server yet.`);
   }
 
+  const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
   res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-  return fs.createReadStream(filePath).pipe(res);
+  res.setHeader('Content-Disposition', `attachment; filename="${safeName}"`);
+  res.setHeader('Content-Length', String(fs.statSync(filePath).size));
+  res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  return fs.createReadStream(filePath).on('error', err => {
+    console.error('PDF download error:', err);
+    if (!res.headersSent) res.status(500).send('PDF download failed.');
+  }).pipe(res);
 });
 
 app.get('/read-pdf/:lang', (req, res) => {
@@ -155,8 +161,12 @@ app.get('/read-pdf/:lang', (req, res) => {
     return res.status(404).send('PDF not installed.');
   }
 
+  const stat = fs.statSync(filePath);
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', 'inline');
+  res.setHeader('Content-Length', String(stat.size));
+  res.setHeader('Accept-Ranges', 'bytes');
+  res.setHeader('Cache-Control', 'no-store');
   return fs.createReadStream(filePath).pipe(res);
 });
 
