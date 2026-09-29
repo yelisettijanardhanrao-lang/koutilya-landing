@@ -49,7 +49,7 @@ async function openLanguage(lang){
  if(loadingTask){try{await loadingTask.destroy();}catch{}}
  if(pdf){try{await pdf.destroy();}catch{}}
  try{
-  const response=await fetch(url,{credentials:"same-origin",cache:"no-store"});
+  const response=await fetch(url,{credentials:"same-origin",cache:"default"});
   if(!response.ok)throw new Error("PDF request failed: "+response.status);
   const data=new Uint8Array(await response.arrayBuffer());
   loadingTask=pdfjsLib.getDocument({data,disableWorker:true});
