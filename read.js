@@ -11,12 +11,11 @@ const message=document.getElementById("readerMessage");
 const errorBox=document.getElementById("readerError");
 const pageNum=document.getElementById("pageNum");
 const pageCount=document.getElementById("pageCount");
-const prevBtn=document.getElementById("prevBtn");
-const nextBtn=document.getElementById("nextBtn");
 const zoomIn=document.getElementById("zoomIn");
 const zoomOut=document.getElementById("zoomOut");
 const zoomReset=document.getElementById("zoomReset");
 let pdf=null,currentPage=1,scale=1,loadingTask=null,rendering=false,fitMobile=true;
+let touchStartX=0,touchStartY=0,touchStartTime=0;
 
 function showError(text){message.style.display="none";wrap.hidden=true;errorBox.textContent=text;errorBox.style.display="block";}
 function setLoading(text){message.style.display="flex";message.querySelector("h1").textContent=text;errorBox.style.display="none";}
@@ -29,7 +28,7 @@ async function fitPageToMobileWidth(page){
 }
 async function renderPage(){
  if(!pdf||rendering)return;
- rendering=true; prevBtn.disabled=currentPage<=1; nextBtn.disabled=currentPage>=pdf.numPages; pageNum.textContent=currentPage;
+ rendering=true; pageNum.textContent=currentPage;
  try{
   const page=await pdf.getPage(currentPage);
   await fitPageToMobileWidth(page);
@@ -46,12 +45,10 @@ async function renderPage(){
 async function openLanguage(lang){
  const url=pdfs[lang]; if(!url)return;
  buttons.forEach(b=>b.classList.toggle("active",b.dataset.lang===lang));
- setLoading("Loading book…"); currentPage=1; scale=1;
+ setLoading("Loading book…"); currentPage=1; scale=1; fitMobile=true;
  if(loadingTask){try{await loadingTask.destroy();}catch{}}
  if(pdf){try{await pdf.destroy();}catch{}}
  try{
-  // Load the complete PDF first. This avoids Safari/iOS range-streaming
-  // differences and gives PDF.js a stable in-memory document.
   const response=await fetch(url,{credentials:"same-origin",cache:"no-store"});
   if(!response.ok)throw new Error("PDF request failed: "+response.status);
   const data=new Uint8Array(await response.arrayBuffer());
@@ -60,14 +57,49 @@ async function openLanguage(lang){
   await renderPage();
  }catch(e){console.error("PDF load error",e);showError("Unable to open this language PDF. Please check the server and PDF file.");}
 }
-buttons.forEach(b=>b.addEventListener("click",()=>{fitMobile=true;openLanguage(b.dataset.lang);}));
-prevBtn.addEventListener("click",()=>{if(currentPage>1){currentPage--;renderPage()}});
-nextBtn.addEventListener("click",()=>{if(pdf&&currentPage<pdf.numPages){currentPage++;renderPage()}});
+
+async function goToPage(page){
+ if(!pdf||rendering||page<1||page>pdf.numPages)return;
+ currentPage=page;
+ await renderPage();
+}
+
+buttons.forEach(b=>b.addEventListener("click",()=>openLanguage(b.dataset.lang)));
+
 zoomIn.addEventListener("click",()=>{fitMobile=false;scale=Math.min(scale+0.2,2.5);renderPage()});
 zoomOut.addEventListener("click",()=>{fitMobile=false;scale=Math.max(scale-0.2,0.6);renderPage()});
 zoomReset.addEventListener("click",()=>{fitMobile=false;scale=1;renderPage()});
+
+wrap.addEventListener("touchstart",e=>{
+ if(e.touches.length!==1)return;
+ const t=e.touches[0];
+ touchStartX=t.clientX;
+ touchStartY=t.clientY;
+ touchStartTime=Date.now();
+},{passive:true});
+
+wrap.addEventListener("touchend",e=>{
+ if(e.changedTouches.length!==1||!pdf)return;
+ const t=e.changedTouches[0];
+ const dx=t.clientX-touchStartX;
+ const dy=t.clientY-touchStartY;
+ const dt=Date.now()-touchStartTime;
+ const horizontal=Math.abs(dx)>=50&&Math.abs(dx)>Math.abs(dy)*1.2&&dt<800;
+
+ // At zoom levels above the normal page view, keep horizontal swiping
+ // available for moving around the enlarged page instead of changing pages.
+ if(!horizontal||scale>1.05)return;
+
+ if(dx<0)goToPage(currentPage+1);
+ else goToPage(currentPage-1);
+},{passive:true});
+
 document.addEventListener("contextmenu",e=>e.preventDefault());
 document.addEventListener("dragstart",e=>e.preventDefault());
-document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&["s","p","u"].includes(e.key.toLowerCase()))e.preventDefault();if(e.key==="ArrowLeft"&&!prevBtn.disabled)prevBtn.click();if(e.key==="ArrowRight"&&!nextBtn.disabled)nextBtn.click();});
+document.addEventListener("keydown",e=>{
+ if((e.ctrlKey||e.metaKey)&&["s","p","u"].includes(e.key.toLowerCase()))e.preventDefault();
+ if(e.key==="ArrowLeft")goToPage(currentPage-1);
+ if(e.key==="ArrowRight")goToPage(currentPage+1);
+});
 window.addEventListener("resize",()=>{if(pdf){if(isMobile())fitMobile=true;renderPage()}});
 openLanguage("te");
