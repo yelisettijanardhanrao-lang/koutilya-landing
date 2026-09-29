@@ -15,14 +15,15 @@ body.reader-page{background:#f4f6f8;font-family:Arial,"Noto Sans Telugu",sans-se
 .reader-lang{border:1px solid #d4dbe7;background:#fff;color:#071b42;border-radius:7px;padding:11px 22px;font-weight:700;cursor:pointer;font-size:14px;white-space:nowrap}.reader-lang.active{background:#ffc900;border-color:#ffc900}
 .reader-area{position:relative;flex:1;min-height:0;background:#e9edf1;display:flex;flex-direction:column}
 .reader-toolbar{min-height:54px;height:54px;flex:0 0 54px;background:#fff;border-bottom:1px solid #cfd6df;display:flex;align-items:center;justify-content:center;gap:8px;padding:5px 8px;overflow-x:auto}
-.reader-toolbar button{border:1px solid #cbd3dd;background:#fff;border-radius:6px;padding:7px 12px;color:#071b42;font-weight:700;cursor:pointer;white-space:nowrap}.reader-toolbar button:disabled{opacity:.45;cursor:not-allowed}
-.page-info{min-width:105px;text-align:center;color:#071b42;font-weight:700;white-space:nowrap}.reader-canvas-wrap{flex:1;min-height:0;overflow:auto;text-align:center;padding:18px;-webkit-overflow-scrolling:touch}
+.reader-toolbar button{border:1px solid #cbd3dd;background:#fff;border-radius:6px;padding:7px 12px;color:#071b42;font-weight:700;cursor:pointer;white-space:nowrap}
+.page-info{min-width:105px;text-align:center;color:#071b42;font-weight:700;white-space:nowrap}
+.reader-canvas-wrap{flex:1;min-height:0;overflow:auto;text-align:center;padding:18px;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .page-container{display:inline-block;background:#fff;box-shadow:0 2px 14px rgba(0,0,0,.18);line-height:0;max-width:none}.page-container canvas{display:block}
 .reader-message{position:absolute;inset:54px 0 0;display:flex;align-items:center;justify-content:center}.reader-message-box{background:#fff;border:1px solid #d9dfe8;border-radius:12px;padding:42px 60px;text-align:center;box-shadow:0 8px 28px rgba(10,30,60,.08);color:#35557e}.reader-message-box h1{color:#071b42;margin:0 0 10px}.reader-error{display:none;color:#b00020;background:#fff;padding:18px;text-align:center;font-weight:700}.busy{display:none;color:#35557e;font-weight:700}
 @media(max-width:700px){
 .reader-header{height:54px;flex:0 0 54px;padding:0 9px;gap:8px}.reader-title{font-size:14px;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.reader-home{font-size:11px;padding:8px 10px;border-radius:6px}
 .reader-languages{height:58px;min-height:58px;flex:0 0 58px;overflow-x:auto;justify-content:flex-start;padding:7px 8px;gap:7px;-webkit-overflow-scrolling:touch}.reader-languages strong{font-size:11px;margin-right:2px}.reader-lang{padding:8px 12px;font-size:11px}
-.reader-toolbar{height:46px;min-height:46px;flex:0 0 46px;justify-content:flex-start;gap:5px;padding:4px 6px;overflow-x:auto}.reader-toolbar button{font-size:10px;padding:6px 8px}.page-info{min-width:58px;font-size:10px}.reader-canvas-wrap{padding:6px;overflow:auto}
+.reader-toolbar{height:46px;min-height:46px;flex:0 0 46px;justify-content:center;gap:5px;padding:4px 6px;overflow:hidden}.reader-toolbar button{font-size:10px;padding:6px 8px}.page-info{min-width:58px;font-size:10px}.reader-canvas-wrap{padding:6px;overflow:auto}
 .reader-message{inset:46px 0 0}.reader-message-box{max-width:calc(100% - 24px);padding:24px 14px}.reader-message-box h1{font-size:20px}
 }
 </style>
@@ -32,7 +33,7 @@ body.reader-page{background:#f4f6f8;font-family:Arial,"Noto Sans Telugu",sans-se
 <header class="reader-header"><div class="reader-title">శకారంభం — Read Online</div><a class="reader-home" href="index.html">← Home</a></header>
 <div class="reader-languages"><strong>Select Language:</strong><button type="button" class="reader-lang active" data-lang="te">తెలుగు</button><button type="button" class="reader-lang" data-lang="en">English</button></div>
 <section class="reader-area">
-<div class="reader-toolbar"><button id="prevBtn" type="button">← Previous</button><div class="page-info"><span id="pageNum">1</span> / <span id="pageCount">—</span></div><button id="nextBtn" type="button">Next →</button><button id="zoomOut" type="button">−</button><button id="zoomReset" type="button">100%</button><button id="zoomIn" type="button">+</button></div>
+<div class="reader-toolbar"><div class="page-info"><span id="pageNum">1</span> / <span id="pageCount">—</span></div><button id="zoomOut" type="button">−</button><button id="zoomReset" type="button">100%</button><button id="zoomIn" type="button">+</button></div>
 <div id="readerMessage" class="reader-message"><div class="reader-message-box"><h1>Loading…</h1><p class="busy">Please wait.</p></div></div><div id="readerError" class="reader-error"></div>
 <div id="canvasWrap" class="reader-canvas-wrap" hidden><div id="pageContainer" class="page-container"><canvas id="pdfCanvas"></canvas></div></div>
 </section></div>
