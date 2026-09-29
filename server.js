@@ -165,7 +165,7 @@ app.get('/read-pdf/:lang', (req, res) => {
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', 'inline');
   res.setHeader('Accept-Ranges', 'bytes');
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
 
   // Safari/iOS PDF viewer relies on HTTP byte-range requests for large PDFs.
   const range = req.headers.range;
