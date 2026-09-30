@@ -30,7 +30,15 @@ app.use(session({
   }
 }));
 
-app.use(express.static(__dirname, {\n  index: 'index.html',\n  setHeaders: (res, filePath) => {\n    const ext = path.extname(filePath).toLowerCase();\n    if (ext === '.html') res.setHeader('Content-Type', 'text/html; charset=UTF-8');\n    else if (ext === '.js' || ext === '.mjs') res.setHeader('Content-Type', 'text/javascript; charset=UTF-8');\n    else if (ext === '.css') res.setHeader('Content-Type', 'text/css; charset=UTF-8');\n  }\n}));
+app.use(express.static(__dirname, {
+  index: 'index.html',
+  setHeaders: (res, filePath) => {
+    const ext = path.extname(filePath).toLowerCase();
+    if (ext === '.html') res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+    else if (ext === '.js' || ext === '.mjs') res.setHeader('Content-Type', 'text/javascript; charset=UTF-8');
+    else if (ext === '.css') res.setHeader('Content-Type', 'text/css; charset=UTF-8');
+  }
+}));
 
 function oauthClient() {
   if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
@@ -216,6 +224,6 @@ app.head('/read-pdf/:lang', (req, res) => {
   return res.status(200).end();
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Shakarambham server running at http://localhost:${PORT}`);
 });
